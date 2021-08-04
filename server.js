@@ -52,7 +52,8 @@ async function getMovies(req, res) {
     let movieApiData = await axios.get(movieUrl)
     console.log(movieApiData.data.results[0], movieApiData.data.results.length);
     movieApiData.data.results.map(item => returnArr.push(new Movie(item)));
-    res.status(400).send(returnArr);
+    console.log('Movie Arr: ' + returnArr);
+    res.status(200).send(returnArr);
   }
   catch (error) {
     res.status(400)
@@ -75,6 +76,7 @@ async function getWeather(req, res) {
     let returnData = weatherResponse.data.data.map((item) => {
       return new Forecast(item);
     });
+    console.log('weatherData: ' + returnData);
     //send it along with a 200
     res.status(200).send(returnData);
 
