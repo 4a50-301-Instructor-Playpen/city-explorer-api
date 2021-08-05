@@ -7,17 +7,7 @@ class Forecast {
   }
 }
 
-class Movie {
-  constructor(movie) {
-    this.title = movie.title
-    this.overview = movie.overview
-    this.average_votes = movie.vote_average
-    this.total_votes = movie.vote_count
-    this.image_url = `https://image.tmdb.org/t/p/w200${movie.poster_path}`
-    this.popularity = movie.popularity
-    this.released_on = movie.release_date
-  }
-}
+
 //Bring in the npm package 'express'
 const express = require('express');
 
@@ -36,55 +26,50 @@ const axios = require('axios');
 
 //getting the PORT from our env.
 const PORT = process.env.PORT || 3001; //value: 3000\
-
+const weather = require('./modules/weather');
+const movies = require('./modules/movies');
 //routing '/' is refeerred to an endpoint
 app.get('/', (req, res) => {
   res.send('Hello from the home route!');
 });
-app.get('/weather', getWeather);
-app.get('/movies', getMovies)
+app.get('/weather', getWeatherModule);
+app.get('/movies', getMovieModule);
 
-async function getMovies(req, res) {
-  let returnArr = [];
+async function getMovieModule(req, res) {
   let { city_name } = req.query;
-  const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${city_name}`;
+  console.log(city_name);
   try {
-    let movieApiData = await axios.get(movieUrl)
-    console.log(movieApiData.data.results[0], movieApiData.data.results.length);
-    movieApiData.data.results.map(item => returnArr.push(new Movie(item)));
-    console.log('Movie Arr: ' + returnArr);
-    res.status(200).send(returnArr);
+    movies(city_name)
+      .then(data => {
+        console.log('movieData:', data);
+        res.send(data);
+      })
+      .catch(e => console.log('Movie Server Error:', e));
   }
   catch (error) {
-    res.status(400)
-    if (error.status) res.status(error.status)
-    res.send(error.message)
+    res.send(error.message);
   }
 
 }
-
-async function getWeather(req, res) {
+function getWeatherModule(req, res) {
   try {
-    //make an obj for the search Q
-    let { searchQuery, lat, lon } = req.query;
-    if (!searchQuery) searchQuery = 'No City';
-    //can use city or lat/long pair    
-    const weatherbitUrl = `https://api.weatherbit.io/v2.0//forecast/daily?key=${process.env.WEATHERBIT_API_KEY}&lat=${lat}&lon=${lon}`;
-    //axios.get API Call to the actualy WeatherBit API
-    let weatherResponse = await axios.get(weatherbitUrl);
-    //Put the data into an array
-    let returnData = weatherResponse.data.data.map((item) => {
-      return new Forecast(item);
-    });
-    console.log('weatherData: ' + returnData);
-    //send it along with a 200
-    res.status(200).send(returnData);
+    let { lat, lon } = req.query;
+    console.log('getWeatherModule');
+    try {
+      weather(lat, lon)
+        .then(datastuff => res.send(datastuff))
+        .catch((e => console.log(e))
+        )
+      //console.log(response);
+    }
+    catch {
+      res.send('error');
+    }
+
 
   }
-  catch (e) {
-    console.log(e);
-    res.status(e.status).send({ status: e.status, description: `Unable to Process Request.  Query String Correct? ${e.message}` });
-  }
+  catch { }
+
 }
 
 //listening
