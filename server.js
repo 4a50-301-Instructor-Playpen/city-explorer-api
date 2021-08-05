@@ -51,24 +51,6 @@ async function getMovieModule(req, res) {
   }
 
 }
-async function getMovies(req, res) {
-  let returnArr = [];
-  let { city_name } = req.query;
-  const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${city_name}`;
-  try {
-    let movieApiData = await axios.get(movieUrl)
-    console.log(movieApiData.data.results[0], movieApiData.data.results.length);
-    movieApiData.data.results.map(item => returnArr.push(new Movie(item)));
-    console.log('Movie Arr: ' + returnArr);
-    res.status(200).send(returnArr);
-  }
-  catch (error) {
-    res.status(400)
-    if (error.status) res.status(error.status)
-    res.send(error.message)
-  }
-
-}
 function getWeatherModule(req, res) {
   try {
     let { lat, lon } = req.query;
