@@ -37,38 +37,39 @@ app.get('/movies', getMovieModule);
 
 async function getMovieModule(req, res) {
   let { city_name } = req.query;
-  console.log(city_name);
+  console.log('firstCityName:', city_name);
   try {
     movies(city_name)
       .then(data => {
         console.log('movieData:', data);
         res.send(data);
       })
-      .catch(e => console.log('Movie Server Error:', e));
+      .catch(err => console.log(`Error retrieving movies: ${err}`));
   }
+
   catch (error) {
     res.send(error.message);
   }
 
 }
 function getWeatherModule(req, res) {
+
+  let { lat, lon } = req.query;
+  console.log('getWeatherModule');
   try {
-    let { lat, lon } = req.query;
-    console.log('getWeatherModule');
-    try {
-      weather(lat, lon)
-        .then(datastuff => res.send(datastuff))
-        .catch((e => console.log(e))
-        )
-      //console.log(response);
-    }
-    catch {
-      res.send('error');
-    }
-
-
+    weather(lat, lon)
+      .then(datastuff => res.send(datastuff))
+      .catch((e => console.log(e))
+      )
+    //console.log(response);
   }
-  catch { }
+  catch {
+    res.send('error');
+  }
+
+
+
+
 
 }
 
