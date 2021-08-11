@@ -1,77 +1,33 @@
-'use strict'
-class Forecast {
-  constructor(weatherDay) {
-    this.date = weatherDay.datetime;
-    //Low of 17.5, high of 29.9 with few clouds
-    this.description = `Low of ${weatherDay.low_temp}, high of ${weatherDay.high_temp} with ${weatherDay.weather.description}`;
-  }
-}
+'use strict';
 
-
-//Bring in the npm package 'express'
+require('dotenv');
 const express = require('express');
-
-//initialize the express library
-const app = express();
-
-//This is going to access our .env
-require('dotenv').config();
-
-//Determine who can use the server.  Alway required (wont use now)
 const cors = require('cors');
 
+const weather = require('./modules/weather.js');
+const movies = require('./modules/movies.js')
+const app = express();
+
+require('dotenv').config();
 app.use(cors());
 
-const axios = require('axios');
+app.get('/weather', weatherHandler);
+app.get('/movies', movieHandler);
 
-//getting the PORT from our env.
-const PORT = process.env.PORT || 3001; //value: 3000\
-const weather = require('./modules/weather');
-const movies = require('./modules/movies');
-//routing '/' is refeerred to an endpoint
-app.get('/', (req, res) => {
-  res.send('Hello from the home route!');
-});
-app.get('/weather', getWeatherModule);
-app.get('/movies', getMovieModule);
-
-async function getMovieModule(req, res) {
+function weatherHandler(request, response) {
+  const { lat, lon } = request.query;
+  weather(lat, lon)
+    .then(summaries => response.send(summaries))
+    .catch((error) => {
+      console.error(error);
+      response.status(200).send('Sorry. Something went wrong!')
+    });
+}
+async function movieHandler(req, res) {
   let { city_name } = req.query;
-  console.log('firstCityName:', city_name);
-  try {
-    movies(city_name)
-      .then(data => {
-        console.log('movieData:', data);
-        res.send(data);
-      })
-      .catch(err => console.log(`Error retrieving movies: ${err}`));
-  }
-
-  catch (error) {
-    res.send(error.message);
-  }
+  movies(city_name.toUpperCase())
+    .then(data => res.send(data))
+    .catch(err => console.log(`Error retrieving movies: ${err}`));
 
 }
-function getWeatherModule(req, res) {
-
-  let { lat, lon } = req.query;
-  console.log('getWeatherModule');
-  try {
-    weather(lat, lon)
-      .then(datastuff => res.send(datastuff))
-      .catch((e => console.log(e))
-      )
-    //console.log(response);
-  }
-  catch {
-    res.send('error');
-  }
-
-
-
-
-
-}
-
-//listening
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
+app.listen(process.env.PORT, () => console.log(`Server up on ${process.env.PORT}`));
