@@ -5,7 +5,8 @@ const express = require('express');
 const cors = require('cors');
 
 const weather = require('./modules/weather.js');
-const movies = require('./modules/movies.js')
+const movies = require('./modules/movies.js');
+const yelp = require('./modules/yelp');
 const app = express();
 
 require('dotenv').config();
@@ -13,6 +14,14 @@ app.use(cors());
 
 app.get('/weather', weatherHandler);
 app.get('/movies', movieHandler);
+app.get('/yelp', yelpHandler);
+
+function yelpHandler(req, res) {
+  const { searchQuery } = req.query;
+  yelp(searchQuery)
+    .then(data => res.send(data))
+    .catch(err => res.send(err));
+}
 
 function weatherHandler(request, response) {
   const { lat, lon } = request.query;
