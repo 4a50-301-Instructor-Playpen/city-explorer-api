@@ -29,7 +29,7 @@ function weatherHandler(request, response) {
     .then(summaries => response.send(summaries))
     .catch((error) => {
       console.error(error);
-      response.status(200).send('Sorry. Something went wrong!')
+      response.status(500).send('Sorry. Something went wrong!:', error)
     });
 }
 async function movieHandler(req, res) {
