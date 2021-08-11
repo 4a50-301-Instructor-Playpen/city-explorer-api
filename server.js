@@ -2,15 +2,16 @@
 
 require('dotenv');
 const express = require('express');
+const app = express();
+require('dotenv').config();
+
 const cors = require('cors');
+app.use(cors());
 
 const weather = require('./modules/weather.js');
 const movies = require('./modules/movies.js');
 const yelp = require('./modules/yelp');
-const app = express();
 
-require('dotenv').config();
-app.use(cors());
 
 app.get('/weather', weatherHandler);
 app.get('/movies', movieHandler);
