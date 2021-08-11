@@ -7,7 +7,7 @@ function getMovies(cityName) {
 
   const key = 'movies-' + cityName;
   const movieURL = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${cityName}`;
-  if (cache[key] && (Date.now() - cache[key].timestamp < 1000 * 20)) {
+  if (cache[key] && (Date.now() - cache[key].timestamp < 1000 * 60 * 60 * 24)) {
     console.log('cache hit');
   } else {
     console.log('cache miss');
